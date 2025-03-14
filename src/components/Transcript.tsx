@@ -46,11 +46,11 @@ export default function Transcript({
 
 const handleWordClick = (timestamp: [number, number | null], setTimelineRegion:SetTimelineRegion) => {
     setTimelineRegion({ start: timestamp[0], end: timestamp[1] });
-    const videoElement = document.getElementById("video-player");
-    if (videoElement) {
-        // @ts-ignore
-        videoElement.currentTime = timestamp[0];
-    }
+    // const videoElement = document.getElementById("video-player");
+    // if (videoElement) {
+    //     // @ts-ignore
+    //     videoElement.currentTime = timestamp[0];
+    // }
 };
 
 const TextWithTimestamps = (chunks: TranscriptionData, setTimelineRegion:SetTimelineRegion) => {

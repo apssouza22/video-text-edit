@@ -35,16 +35,30 @@ const handleVideoLoad = (videoHtml: HTMLVideoElement, region: Region) => {
     });
 };
 const regions = RegionsPlugin.create();
+regions.enableDragSelection({
+    color: 'rgba(255, 0, 0, 0.1)',
+})
 const VideoTimeline = ({ videoHtml, region }: VideoTimelineProps) => {
     useEffect(() => {
         if (!videoHtml) return;
-        console.log(region);
         // @ts-ignore
         videoHtml.addEventListener("loadeddata", () => {
             handleVideoLoad(videoHtml, region);
         });
-    }, [videoHtml, region]);
+    }, [videoHtml]);
+    useEffect(() => {
+        if (!videoHtml) return;
+        regions.clearRegions()
+        regions.addRegion({
+            start: region.start,
+            end: region.end,
+            content: "",
+            color: `rgba(95, 80, 155, 0.5)`,
+            drag: true,
+            resize: true,
+        });
 
+    }, [region]);
     return <div className='video-waver' />;
 };
 
