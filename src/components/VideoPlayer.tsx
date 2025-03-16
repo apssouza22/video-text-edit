@@ -3,6 +3,7 @@ import VideoTimeline from "./VideoTimeline";
 import { Region } from "wavesurfer.js/dist/plugins/regions";
 import { Transcriber } from "../hooks/useTranscriber";
 import Transcript from "./Transcript";
+import useEditVideoFile from "../hooks/useEditVideoFile";
 
 export default function VideoPlayer(props: {
     videoUrl: string;
@@ -11,6 +12,7 @@ export default function VideoPlayer(props: {
 }) {
     const videoPlayer = useRef<HTMLVideoElement>(null);
     const videoSource = useRef<HTMLSourceElement>(null);
+    const ffmpeg = useEditVideoFile(videoSource.current);
     const [videoHtml, setVideoHtml] = useState<HTMLVideoElement>();
     const [timelineRegion, setTimelineRegion] = useState<Region>({
         start: 0,
@@ -20,6 +22,7 @@ export default function VideoPlayer(props: {
     // Updates src when url changes
     useEffect(() => {
         if (videoPlayer.current && videoSource.current) {
+            console.log(props.videoUrl);
             videoSource.current.src = props.videoUrl;
             videoPlayer.current.load();
             setVideoHtml(videoPlayer.current);
@@ -48,8 +51,23 @@ export default function VideoPlayer(props: {
                 )}
             </div>
             <div className="className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'">
-                <Transcript transcribedData={props.transcriber?.output} setTimelineRegion={setTimelineRegion} />
+                <button
+                    className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center'
+                    onClick={async () => {
+                        const blobVideo = await ffmpeg.cutVideo([
+                            [timelineRegion.start, 1],
+                        ]);
+                        videoSource.current.src = blobVideo;
+                        videoPlayer.current.load();
+                    }}
+                >
+                    Save video
+                </button>
             </div>
+            <Transcript
+                transcribedData={props.transcriber?.output}
+                setTimelineRegion={setTimelineRegion}
+            />
         </>
     );
 }

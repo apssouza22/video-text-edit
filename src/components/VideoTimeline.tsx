@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import WaveSurfer from "wavesurfer.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import RegionsPlugin from "wavesurfer.js/dist/plugins/regions.esm.js";
 
@@ -12,11 +13,11 @@ interface VideoTimelineProps {
 
 const handleVideoLoad = (videoHtml: HTMLVideoElement, region: Region) => {
     const ws = WaveSurfer.create({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         container: document.querySelector(".video-waver"),
         waveColor: "rgb(200, 0, 200)",
         progressColor: "rgb(100, 0, 100)",
-        // @ts-ignore
         media: videoHtml,
         height: 100,
         width: 1000,
@@ -34,21 +35,24 @@ const handleVideoLoad = (videoHtml: HTMLVideoElement, region: Region) => {
         });
     });
 };
+
 const regions = RegionsPlugin.create();
 regions.enableDragSelection({
-    color: 'rgba(255, 0, 0, 0.1)',
-})
+    color: "rgba(255, 0, 0, 0.1)",
+});
+
 const VideoTimeline = ({ videoHtml, region }: VideoTimelineProps) => {
     useEffect(() => {
         if (!videoHtml) return;
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         videoHtml.addEventListener("loadeddata", () => {
             handleVideoLoad(videoHtml, region);
         });
     }, [videoHtml]);
+
     useEffect(() => {
         if (!videoHtml) return;
-        regions.clearRegions()
+        regions.clearRegions();
         regions.addRegion({
             start: region.start,
             end: region.end,
@@ -57,7 +61,6 @@ const VideoTimeline = ({ videoHtml, region }: VideoTimelineProps) => {
             drag: true,
             resize: true,
         });
-
     }, [region]);
     return <div className='video-waver' />;
 };
