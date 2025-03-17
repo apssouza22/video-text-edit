@@ -2,36 +2,49 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { TranscriberData } from "../hooks/useTranscriber";
 import { TranscriptionData } from "../utils/TranscriptionUtils";
+import { useAppContext } from "../hooks/useAppContext";
+import { Action } from "../context/AppContext";
 
 type SetUseState = (value: ((prevState: any) => any) | any) => void;
 
 interface Props {
     transcribedData: TranscriberData | undefined;
-    setTimelineRegion: SetUseState;
 }
 
 export default function Transcript({
-    transcribedData,
-    setTimelineRegion,
+    transcribedData
 }: Props) {
     const divRef = useRef<HTMLDivElement>(null);
-    const [chunk, setChunk] = useState<{ text: string; timestamp: [number, number | null]}>();
+    const { dispatch } = useAppContext();
+    const [chunk, setChunk] = useState<{
+        text: string;
+        timestamp: [number, number | null];
+    }>();
 
-    const handleKeyDown = useCallback((event: KeyboardEvent) => {
-        if (event.key === "Backspace") {
-            let querySelector = document.querySelector(".text-chunks .cursor-here");
-            if (querySelector) {
-                let previousSibling = querySelector.previousElementSibling;
-                if (previousSibling) {
-                    previousSibling.classList.add("cursor-here");
-                }
-                setTimelineRegion({start: chunk?.timestamp[0], end: chunk?.timestamp[1]});
-                // @ts-ignore
-                querySelector.remove();
+    const handleKeyDown = useCallback(
+        (event: KeyboardEvent) => {
+            if (event.key !== "Backspace") {
+                return;
             }
-        }
-    }, [chunk]);
+            let querySelector = document.querySelector(
+                ".text-chunks .cursor-here",
+            );
+            if (!querySelector) {
+                return;
+            }
+            let previousSibling = querySelector.previousElementSibling;
+            if (previousSibling) {
+                // @ts-ignore
+                previousSibling.click();
+            }
 
+            dispatch({ type: "ADD_WORD_TIMESTEP", payload: chunk });
+
+            // @ts-ignore
+            querySelector.remove();
+        },
+        [chunk],
+    );
 
     useEffect(() => {
         window.addEventListener("keydown", handleKeyDown);
@@ -64,16 +77,17 @@ export default function Transcript({
             {transcribedData?.chunks &&
                 TextWithTimestamps(
                     transcribedData.chunks ?? [],
-                  setChunk,
+                    setChunk,
+                    dispatch,
                 )}
         </div>
     );
 }
 
-
 const TextWithTimestamps = (
     chunks: TranscriptionData,
     setChunk: SetUseState,
+    dispatch: (value: Action) => void,
 ) => {
     return (
         <div className={"text-chunks"}>
@@ -82,13 +96,15 @@ const TextWithTimestamps = (
                     key={index}
                     onClick={(e) => {
                         let element = e.target as HTMLElement;
-                        document.querySelectorAll(".cursor-here").forEach((el) => {
-                            el.classList.remove("cursor-here");
-                        })
+                        document
+                            .querySelectorAll(".cursor-here")
+                            .forEach((el) => {
+                                el.classList.remove("cursor-here");
+                            });
                         element.classList.add("cursor-here");
+                        dispatch({ type: "ADD_SELECTED_WORD", payload: chunk });
                         setChunk(chunk);
                     }}
-
                     style={{ cursor: "pointer", marginRight: "5px" }}
                 >
                     {chunk.text}

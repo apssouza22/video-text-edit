@@ -3,15 +3,13 @@ import WaveSurfer from "wavesurfer.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import RegionsPlugin from "wavesurfer.js/dist/plugins/regions.esm.js";
-
-type Region = { start: number; end: number };
+import { useAppContext } from "../hooks/useAppContext";
 
 interface VideoTimelineProps {
     videoHtml?: HTMLVideoElement | undefined;
-    region: Region;
 }
 
-const handleVideoLoad = (videoHtml: HTMLVideoElement, region: Region) => {
+const handleVideoLoad = (videoHtml: HTMLVideoElement) => {
     const ws = WaveSurfer.create({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -26,8 +24,8 @@ const handleVideoLoad = (videoHtml: HTMLVideoElement, region: Region) => {
 
     ws.on("decode", () => {
         regions.addRegion({
-            start: region.start,
-            end: region.end,
+            start: 0,
+            end: 1,
             content: "",
             color: `rgba(95, 80, 155, 0.5)`,
             drag: true,
@@ -41,27 +39,32 @@ regions.enableDragSelection({
     color: "rgba(255, 0, 0, 0.1)",
 });
 
-const VideoTimeline = ({ videoHtml, region }: VideoTimelineProps) => {
+const VideoTimeline = ({ videoHtml }: VideoTimelineProps) => {
+    const context = useAppContext();
+
     useEffect(() => {
         if (!videoHtml) return;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         videoHtml.addEventListener("loadeddata", () => {
-            handleVideoLoad(videoHtml, region);
+            handleVideoLoad(videoHtml);
         });
     }, [videoHtml]);
 
     useEffect(() => {
         if (!videoHtml) return;
         regions.clearRegions();
+        if(!context.selectedWord){
+            return;
+        }
         regions.addRegion({
-            start: region.start,
-            end: region.end,
-            content: "",
+            start:  context.selectedWord?.timestamp[0],
+            end: context.selectedWord?.timestamp[1],
+            content: context.selectedWord?.text,
             color: `rgba(95, 80, 155, 0.5)`,
             drag: true,
             resize: true,
         });
-    }, [region]);
+    }, [context]);
     return <div className='video-waver' />;
 };
 

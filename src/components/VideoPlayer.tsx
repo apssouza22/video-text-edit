@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import VideoTimeline from "./VideoTimeline";
-import { Region } from "wavesurfer.js/dist/plugins/regions";
 import { Transcriber } from "../hooks/useTranscriber";
 import Transcript from "./Transcript";
 import useEditVideoFile from "../hooks/useEditVideoFile";
+import { useAppContext } from "../hooks/useAppContext";
 
-const regions = Array<[number, number]>(); // Array of regions to cut
 export default function VideoPlayer(props: {
     videoUrl: string;
     mimeType: string;
@@ -15,25 +14,15 @@ export default function VideoPlayer(props: {
     const videoSource = useRef<HTMLSourceElement>(null);
     const ffmpeg = useEditVideoFile(videoSource.current, videoPlayer.current);
     const [videoHtml, setVideoHtml] = useState<HTMLVideoElement>();
-    const [timelineRegion, setTimelineRegion] = useState<Region>({
-        start: 0,
-        end: 0,
-    } as Region);
+    const context = useAppContext();
 
     useEffect(() => {
         if (videoPlayer.current && videoSource.current) {
-            console.log(props.videoUrl);
             videoSource.current.src = props.videoUrl;
             videoPlayer.current.load();
             setVideoHtml(videoPlayer.current);
         }
     }, [props.videoUrl]);
-
-    useEffect(() => {
-        if (timelineRegion.start === 0 && timelineRegion.end === 0) return;
-        regions.push([timelineRegion.start, timelineRegion.end]);
-        console.log(regions);
-    }, [timelineRegion]);
 
     return (
         <>
@@ -49,17 +38,21 @@ export default function VideoPlayer(props: {
                 </video>
             </div>
             <div className="className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'">
-                {videoPlayer && (
-                    <VideoTimeline
-                        videoHtml={videoHtml}
-                        region={timelineRegion}
-                    />
-                )}
+                {videoPlayer && <VideoTimeline videoHtml={videoHtml} />}
             </div>
             <div className="className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'">
                 <button
                     className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center'
                     onClick={async () => {
+                        const regions = context.wordTimestamps.map((word) => {
+                            return [word.timestamp[0], word.timestamp[1]];
+                        });
+                        // sort regions
+
+                        // @ts-ignore
+                        regions.sort((a, b) => a[0] - b[0]);
+                        console.log(regions);
+                        //
                         // const blobVideo = await ffmpeg.wrapper.current.removeSegmentsVideo(
                         //     regions,
                         // );
@@ -81,17 +74,16 @@ export default function VideoPlayer(props: {
                 </button>
             </div>
             <Transcript
-                transcribedData={props.transcriber?.output}
-                // transcribedData={{
-                //     isBusy: false,
-                //     text: "",
-                //     chunks: [
-                //         { text: "hello", timestamp: [0, 1] },
-                //         { text: "world", timestamp: [1, 2] },
-                //         { text: "!", timestamp: [2, 3] },
-                //     ],
-                // }}
-                setTimelineRegion={setTimelineRegion}
+                // transcribedData={props.transcriber?.output}
+                transcribedData={{
+                    isBusy: false,
+                    text: "",
+                    chunks: [
+                        { text: "hello", timestamp: [0, 1] },
+                        { text: "world", timestamp: [1, 2] },
+                        { text: "!", timestamp: [2, 3] },
+                    ],
+                }}
             />
         </>
     );
