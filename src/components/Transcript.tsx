@@ -1,13 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { TranscriberData } from "../hooks/useTranscriber";
 import { TranscriptionData } from "../utils/TranscriptionUtils";
 
-type SetTimelineRegion = (value: ((prevState: any) => any) | any) => void;
+type SetUseState = (value: ((prevState: any) => any) | any) => void;
 
 interface Props {
     transcribedData: TranscriberData | undefined;
-    setTimelineRegion: SetTimelineRegion;
+    setTimelineRegion: SetUseState;
 }
 
 export default function Transcript({
@@ -15,6 +15,30 @@ export default function Transcript({
     setTimelineRegion,
 }: Props) {
     const divRef = useRef<HTMLDivElement>(null);
+    const [chunk, setChunk] = useState<{ text: string; timestamp: [number, number | null]}>();
+
+    const handleKeyDown = useCallback((event: KeyboardEvent) => {
+        if (event.key === "Backspace") {
+            let querySelector = document.querySelector(".text-chunks .cursor-here");
+            if (querySelector) {
+                let previousSibling = querySelector.previousElementSibling;
+                if (previousSibling) {
+                    previousSibling.classList.add("cursor-here");
+                }
+                setTimelineRegion({start: chunk?.timestamp[0], end: chunk?.timestamp[1]});
+                // @ts-ignore
+                querySelector.remove();
+            }
+        }
+    }, [chunk]);
+
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [chunk]);
 
     // Scroll to the bottom when the component updates
     useEffect(() => {
@@ -38,28 +62,33 @@ export default function Transcript({
             className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'
         >
             {transcribedData?.chunks &&
-                TextWithTimestamps(transcribedData.chunks ?? [], setTimelineRegion)}
-
+                TextWithTimestamps(
+                    transcribedData.chunks ?? [],
+                  setChunk,
+                )}
         </div>
     );
 }
 
-const handleWordClick = (timestamp: [number, number | null], setTimelineRegion:SetTimelineRegion) => {
-    setTimelineRegion({ start: timestamp[0], end: timestamp[1] });
-    // const videoElement = document.getElementById("video-player");
-    // if (videoElement) {
-    //     // @ts-ignore
-    //     videoElement.currentTime = timestamp[0];
-    // }
-};
 
-const TextWithTimestamps = (chunks: TranscriptionData, setTimelineRegion:SetTimelineRegion) => {
+const TextWithTimestamps = (
+    chunks: TranscriptionData,
+    setChunk: SetUseState,
+) => {
     return (
-        <div>
+        <div className={"text-chunks"}>
             {chunks.map((chunk, index) => (
                 <span
                     key={index}
-                    onClick={() => handleWordClick(chunk.timestamp, setTimelineRegion)}
+                    onClick={(e) => {
+                        let element = e.target as HTMLElement;
+                        document.querySelectorAll(".cursor-here").forEach((el) => {
+                            el.classList.remove("cursor-here");
+                        })
+                        element.classList.add("cursor-here");
+                        setChunk(chunk);
+                    }}
+
                     style={{ cursor: "pointer", marginRight: "5px" }}
                 >
                     {chunk.text}

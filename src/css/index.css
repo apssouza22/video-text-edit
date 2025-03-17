@@ -16,3 +16,7 @@ audio::-webkit-media-controls-panel {
     width: 41rem /* 656px */;
     max-width: 95vw;
 }
+
+.cursor-here{
+    text-decoration: underline;
+}

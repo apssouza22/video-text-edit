@@ -64,12 +64,13 @@ export default function VideoPlayer(props: {
                         //     regions,
                         // );
 
-                        const blobVideo = await ffmpeg.wrapper.current.removeSegmentsVideo([
-                          [1, 5],
-                          [10, 15],
-                          [20, 25],
-                          [31, 36],
-                        ]);
+                        const blobVideo =
+                            await ffmpeg.wrapper.current.removeSegmentsVideo([
+                                [1, 5],
+                                [10, 15],
+                                [20, 25],
+                                [31, 36],
+                            ]);
                         // @ts-ignore
                         videoSource.current.src = blobVideo;
                         // @ts-ignore
@@ -81,6 +82,15 @@ export default function VideoPlayer(props: {
             </div>
             <Transcript
                 transcribedData={props.transcriber?.output}
+                // transcribedData={{
+                //     isBusy: false,
+                //     text: "",
+                //     chunks: [
+                //         { text: "hello", timestamp: [0, 1] },
+                //         { text: "world", timestamp: [1, 2] },
+                //         { text: "!", timestamp: [2, 3] },
+                //     ],
+                // }}
                 setTimelineRegion={setTimelineRegion}
             />
         </>
