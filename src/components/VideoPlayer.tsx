@@ -5,6 +5,7 @@ import { Transcriber } from "../hooks/useTranscriber";
 import Transcript from "./Transcript";
 import useEditVideoFile from "../hooks/useEditVideoFile";
 
+const regions = Array<[number, number]>(); // Array of regions to cut
 export default function VideoPlayer(props: {
     videoUrl: string;
     mimeType: string;
@@ -12,14 +13,13 @@ export default function VideoPlayer(props: {
 }) {
     const videoPlayer = useRef<HTMLVideoElement>(null);
     const videoSource = useRef<HTMLSourceElement>(null);
-    const ffmpeg = useEditVideoFile(videoSource.current);
+    const ffmpeg = useEditVideoFile(videoSource.current, videoPlayer.current);
     const [videoHtml, setVideoHtml] = useState<HTMLVideoElement>();
     const [timelineRegion, setTimelineRegion] = useState<Region>({
         start: 0,
         end: 0,
     } as Region);
 
-    // Updates src when url changes
     useEffect(() => {
         if (videoPlayer.current && videoSource.current) {
             console.log(props.videoUrl);
@@ -28,6 +28,12 @@ export default function VideoPlayer(props: {
             setVideoHtml(videoPlayer.current);
         }
     }, [props.videoUrl]);
+
+  useEffect(() => {
+    if(timelineRegion.start === 0 && timelineRegion.end === 0) return;
+    regions.push([timelineRegion.start, timelineRegion.end]);
+    console.log(regions);
+  }, [timelineRegion]);
 
     return (
         <>
@@ -54,11 +60,18 @@ export default function VideoPlayer(props: {
                 <button
                     className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center'
                     onClick={async () => {
-                        const blobVideo = await ffmpeg.cutVideo([
-                            [timelineRegion.start, 1],
-                        ]);
-                        videoSource.current.src = blobVideo;
-                        videoPlayer.current.load();
+                      const blobVideo = await ffmpeg.removeSegmentsVideo(regions);
+
+                        // const blobVideo = await ffmpeg.cutVideo([
+                        //   [1, 5],
+                        //   [10, 15],
+                        //   [20, 25],
+                        //   [31, 36],
+                        // ]);
+                        // @ts-ignore
+                      videoSource.current.src = blobVideo;
+                        // @ts-ignore
+                      videoPlayer.current.load();
                     }}
                 >
                     Save video
