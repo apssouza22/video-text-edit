@@ -29,11 +29,11 @@ export default function VideoPlayer(props: {
         }
     }, [props.videoUrl]);
 
-  useEffect(() => {
-    if(timelineRegion.start === 0 && timelineRegion.end === 0) return;
-    regions.push([timelineRegion.start, timelineRegion.end]);
-    console.log(regions);
-  }, [timelineRegion]);
+    useEffect(() => {
+        if (timelineRegion.start === 0 && timelineRegion.end === 0) return;
+        regions.push([timelineRegion.start, timelineRegion.end]);
+        console.log(regions);
+    }, [timelineRegion]);
 
     return (
         <>
@@ -60,18 +60,20 @@ export default function VideoPlayer(props: {
                 <button
                     className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center'
                     onClick={async () => {
-                      const blobVideo = await ffmpeg.removeSegmentsVideo(regions);
+                        // const blobVideo = await ffmpeg.wrapper.current.removeSegmentsVideo(
+                        //     regions,
+                        // );
 
-                        // const blobVideo = await ffmpeg.cutVideo([
-                        //   [1, 5],
-                        //   [10, 15],
-                        //   [20, 25],
-                        //   [31, 36],
-                        // ]);
+                        const blobVideo = await ffmpeg.wrapper.current.removeSegmentsVideo([
+                          [1, 5],
+                          [10, 15],
+                          [20, 25],
+                          [31, 36],
+                        ]);
                         // @ts-ignore
-                      videoSource.current.src = blobVideo;
+                        videoSource.current.src = blobVideo;
                         // @ts-ignore
-                      videoPlayer.current.load();
+                        videoPlayer.current.load();
                     }}
                 >
                     Save video
