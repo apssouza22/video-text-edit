@@ -53,11 +53,11 @@ const VideoTimeline = ({ videoHtml }: VideoTimelineProps) => {
     useEffect(() => {
         if (!videoHtml) return;
         regions.clearRegions();
-        if(!context.selectedWord){
+        if (!context.selectedWord) {
             return;
         }
         regions.addRegion({
-            start:  context.selectedWord?.timestamp[0],
+            start: context.selectedWord?.timestamp[0],
             end: context.selectedWord?.timestamp[1],
             content: context.selectedWord?.text,
             color: `rgba(95, 80, 155, 0.5)`,

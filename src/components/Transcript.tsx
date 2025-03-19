@@ -11,9 +11,7 @@ interface Props {
     transcribedData: TranscriberData | undefined;
 }
 
-export default function Transcript({
-    transcribedData
-}: Props) {
+export default function Transcript({ transcribedData }: Props) {
     const divRef = useRef<HTMLDivElement>(null);
     const { dispatch } = useAppContext();
     const [chunk, setChunk] = useState<{
@@ -26,9 +24,7 @@ export default function Transcript({
             if (event.key !== "Backspace") {
                 return;
             }
-            let querySelector = document.querySelector(
-                ".text-chunks .cursor-here",
-            );
+            let querySelector = document.querySelector(".text-chunks .cursor-here");
             if (!querySelector) {
                 return;
             }
@@ -56,11 +52,7 @@ export default function Transcript({
     // Scroll to the bottom when the component updates
     useEffect(() => {
         if (divRef.current) {
-            const diff = Math.abs(
-                divRef.current.offsetHeight +
-                    divRef.current.scrollTop -
-                    divRef.current.scrollHeight,
-            );
+            const diff = Math.abs(divRef.current.offsetHeight + divRef.current.scrollTop - divRef.current.scrollHeight);
 
             if (diff <= 64) {
                 // We're close enough to the bottom, so scroll to the bottom
@@ -70,25 +62,13 @@ export default function Transcript({
     });
 
     return (
-        <div
-            ref={divRef}
-            className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'
-        >
-            {transcribedData?.chunks &&
-                TextWithTimestamps(
-                    transcribedData.chunks ?? [],
-                    setChunk,
-                    dispatch,
-                )}
+        <div ref={divRef} className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'>
+            {transcribedData?.chunks && TextWithTimestamps(transcribedData.chunks ?? [], setChunk, dispatch)}
         </div>
     );
 }
 
-const TextWithTimestamps = (
-    chunks: TranscriptionData,
-    setChunk: SetUseState,
-    dispatch: (value: Action) => void,
-) => {
+const TextWithTimestamps = (chunks: TranscriptionData, setChunk: SetUseState, dispatch: (value: Action) => void) => {
     return (
         <div className={"text-chunks"}>
             {chunks.map((chunk, index) => (
@@ -96,11 +76,9 @@ const TextWithTimestamps = (
                     key={index}
                     onClick={(e) => {
                         let element = e.target as HTMLElement;
-                        document
-                            .querySelectorAll(".cursor-here")
-                            .forEach((el) => {
-                                el.classList.remove("cursor-here");
-                            });
+                        document.querySelectorAll(".cursor-here").forEach((el) => {
+                            el.classList.remove("cursor-here");
+                        });
                         element.classList.add("cursor-here");
                         dispatch({ type: "ADD_SELECTED_WORD", payload: chunk });
                         setChunk(chunk);

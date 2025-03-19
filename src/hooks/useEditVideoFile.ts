@@ -13,21 +13,15 @@ class FFmpegWrapperImpl {
     private videoRef;
     private ffmpegRef;
     public onLoadProgressFn: ((progress: number) => void) | undefined;
-    public onProcessFn:((value: ((prevState: boolean) => boolean) | boolean) => void) | undefined;
+    public onProcessFn: ((value: ((prevState: boolean) => boolean) | boolean) => void) | undefined;
 
-    constructor(
-        sourceRef: HTMLSourceElement | null,
-        videoRef: HTMLVideoElement | null,
-        ffmpegRef: React.MutableRefObject<FFmpeg>,
-    ) {
+    constructor(sourceRef: HTMLSourceElement | null, videoRef: HTMLVideoElement | null, ffmpegRef: React.MutableRefObject<FFmpeg>) {
         this.sourceRef = sourceRef;
         this.videoRef = videoRef;
         this.ffmpegRef = ffmpegRef;
     }
 
-    async cutVideo(
-        operations: Array<[number, number]>,
-    ): Promise<string | boolean> {
+    async cutVideo(operations: Array<[number, number]>): Promise<string | boolean> {
         const ffmpeg = this.ffmpegRef.current;
         if (!this.sourceRef) {
             return false;
@@ -47,44 +41,15 @@ class FFmpegWrapperImpl {
         const queue = operations.map(async ([startPos, endPos], index) => {
             const outputSegment = `segment_${index}.mp4`;
             const duration = (endPos - startPos).toString();
-            await ffmpeg.exec([
-                "-ss",
-                startPos.toString(),
-                "-i",
-                "input.mp4",
-                "-t",
-                duration,
-                "-c:v",
-                "libx264",
-                "-c:a",
-                "aac",
-                outputSegment,
-            ]);
+            await ffmpeg.exec(["-ss", startPos.toString(), "-i", "input.mp4", "-t", duration, "-c:v", "libx264", "-c:a", "aac", outputSegment]);
             return outputSegment;
         });
 
         const segmentFiles = await Promise.all(queue);
         const fileList = "fileList.txt";
-        const fileListContent = segmentFiles
-            .map((file) => `file '${file}'`)
-            .join("\n");
-        await ffmpeg.writeFile(
-            fileList,
-            new TextEncoder().encode(fileListContent),
-        );
-        await ffmpeg.exec([
-            "-f",
-            "concat",
-            "-safe",
-            "0",
-            "-i",
-            fileList,
-            "-c:v",
-            "libx264",
-            "-c:a",
-            "aac",
-            "output.mp4",
-        ]);
+        const fileListContent = segmentFiles.map((file) => `file '${file}'`).join("\n");
+        await ffmpeg.writeFile(fileList, new TextEncoder().encode(fileListContent));
+        await ffmpeg.exec(["-f", "concat", "-safe", "0", "-i", fileList, "-c:v", "libx264", "-c:a", "aac", "output.mp4"]);
 
         const data = (await ffmpeg.readFile("output.mp4")) as Uint8Array;
         const blob = new Blob([data.buffer], { type: "video/mp4" });
@@ -107,20 +72,12 @@ class FFmpegWrapperImpl {
         // toBlobURL is used to bypass CORS issue, urls with the same
         // domain can be used directly.
         await ffmpeg.load({
-            coreURL: await toBlobURL(
-                `${BASE_URL}/ffmpeg-core.js`,
-                "text/javascript",
-            ),
-            wasmURL: await toBlobURL(
-                `${BASE_URL}/ffmpeg-core.wasm`,
-                "application/wasm",
-            ),
+            coreURL: await toBlobURL(`${BASE_URL}/ffmpeg-core.js`, "text/javascript"),
+            wasmURL: await toBlobURL(`${BASE_URL}/ffmpeg-core.wasm`, "application/wasm"),
         });
     }
 
-    async removeSegmentsVideo(
-        excludeSegments: Array<[number, number]>,
-    ): Promise<string | boolean> {
+    async removeSegmentsVideo(excludeSegments: Array<[number, number]>): Promise<string | boolean> {
         if (!this.videoRef) {
             return false;
         }
@@ -150,11 +107,7 @@ class FFmpegWrapperImpl {
     }
 }
 
-
-export default function useEditVideoFile(
-    sourceRef: HTMLSourceElement | null,
-    videoRef: HTMLVideoElement | null,
-): FFmpegWrapper{
+export default function useEditVideoFile(sourceRef: HTMLSourceElement | null, videoRef: HTMLVideoElement | null): FFmpegWrapper {
     const [progress, setProgress] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
     const ffmpegRef = useRef(new FFmpeg());
@@ -165,9 +118,8 @@ export default function useEditVideoFile(
         wrapper.current.onLoadProgressFn = setProgress;
         wrapper.current.onProcessFn = setIsProcessing;
     }, [videoRef]);
-    
 
     return {
-        wrapper
+        wrapper,
     };
 }
