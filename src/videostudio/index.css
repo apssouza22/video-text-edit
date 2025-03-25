@@ -28,10 +28,10 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: dark;
+  color-scheme: normal;
   color: hsl(var(--foreground));
   stroke: hsl(var(--foreground));
-  background-color: hsl(var(--background));
+  /*background-color: hsl(var(--background));*/
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -120,6 +120,7 @@ button:hover {
   gap: 28px;
   margin-top: 24px;
   margin-bottom: 20px;
+  background: darkgray;
 }
 
 #playback {

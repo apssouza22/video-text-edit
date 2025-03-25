@@ -6,7 +6,7 @@ import useEditVideoFile from "../hooks/useEditVideoFile";
 import { useAppContext } from "../hooks/useAppContext";
 import { setupControls } from "../videostudio/controls";
 import { setupTimeline } from "../videostudio/timeline";
-// import "../videostudio/index.css";
+import "../videostudio/index.css";
 import * as core from "@diffusionstudio/core";
 
 let rendered = false;
@@ -14,8 +14,12 @@ let rendered = false;
 async function getComposition(videoUrl: string) {
     const composition = new core.Composition();
     const video = await core.Source.from<core.VideoSource>(videoUrl);
+    // const video = await core.Source.from<core.VideoSource>("./sample_aac_.mp4");
     composition.duration = video.duration;
-    const clip = new core.VideoClip(video);
+    const clip = new core.VideoClip(video,{
+        position: 'center',
+        height: '100%'
+    });
     await composition.add(clip);
     return composition;
 }
@@ -46,37 +50,38 @@ export default function VideoPlayer(props: { videoUrl: string; mimeType: string;
     return (
         <>
             <div className='flex relative z-10 p-4 w-full'>
-                <div id='player-container' className={"flex relative z-10 p-4 w-full"}>
-                    <div
-                        id='player'
-                        ref={videoPlayerDiv}
-                        style={{ height: "0px", width: 0 }}
-                        className={"rounded-lg bg-white shadow-xl shadow-black/5 ring-1 ring-slate-700/10"}
-                    ></div>
-                    <div id='progress' style={{ display: "none" }}>
-                        <h1>0%</h1>
+                <div id={"app"}>
+                    <div id='player-container' className={"flex relative z-10 p-4 w-full"}>
+                        <div
+                            id='player'
+                            ref={videoPlayerDiv}
+                            style={{ height: "0px", width: 0 }}
+                            className={"rounded-lg bg-white shadow-xl shadow-black/5 ring-1 ring-slate-700/10"}
+                        ></div>
+                        <div id='progress' style={{ display: "none" }}>
+                            <h1>0%</h1>
+                        </div>
+                    </div>
+                    <div id='timeline'>
+                        <div></div>
+                    </div>
+                    <div id='controls'>
+                        <div id='playback'>
+                            <i data-lucide='skip-back'>skip-back</i>
+                            <i data-lucide='play'>play</i>
+                            <i data-lucide='pause' style={{ display: "none" }}>
+                                pause
+                            </i>
+                            <i data-lucide='skip-forward'>skip-forward</i>
+                        </div>
+                        <span id='time'>00:00 / 00:00</span>
+                        <i data-lucide='sliders-vertical'></i>
+                        <button id='export' type='button'>
+                            <div className='loader' style={{ display: "none" }}></div>
+                            Export
+                        </button>
                     </div>
                 </div>
-                <div id='timeline'>
-                    <div></div>
-                </div>
-                <div id='controls'>
-                    <div id='playback'>
-                        <i data-lucide='skip-back'>skip-back</i>
-                        <i data-lucide='play'>play</i>
-                        <i data-lucide='pause' style={{ display: "none" }}>
-                            pause
-                        </i>
-                        <i data-lucide='skip-forward'>skip-forward</i>
-                    </div>
-                    <span id='time'>00:00 / 00:00</span>
-                    <i data-lucide='sliders-vertical'></i>
-                    <button id='export' type='button'>
-                        <div className='loader' style={{ display: "none" }}></div>
-                        Export
-                    </button>
-                </div>
-
                 <video
                     id={"video-player"}
                     style={{ display: "none" }}
