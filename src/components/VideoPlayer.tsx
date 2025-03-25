@@ -14,12 +14,12 @@ let rendered = false;
 async function getComposition(videoUrl: string) {
     const composition = new core.Composition();
     const video = await core.Source.from<core.VideoSource>(videoUrl);
-    // const video = await core.Source.from<core.VideoSource>("./sample_aac_.mp4");
     composition.duration = video.duration;
-    const clip = new core.VideoClip(video,{
-        position: 'center',
-        height: '100%'
+    const clip = new core.VideoClip(video, {
+        position: "center",
+        height: "100%",
     });
+    clip.subclip(0, video.duration?.frames ?? 0);
     await composition.add(clip);
     return composition;
 }
