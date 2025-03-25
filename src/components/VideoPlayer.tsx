@@ -4,7 +4,7 @@ import { Transcriber } from "../hooks/useTranscriber";
 import Transcript from "./Transcript";
 import useEditVideoFile from "../hooks/useEditVideoFile";
 import { useAppContext } from "../hooks/useAppContext";
-import DiffusionStudioPlayer from "./DiffusionStudioPlayer";
+import DiffusionStudioPlayer from "../videostudio/DiffusionStudioPlayer";
 
 
 export default function VideoPlayer(props: { videoUrl: string; mimeType: string; transcriber?: Transcriber }) {

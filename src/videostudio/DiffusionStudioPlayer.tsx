@@ -1,12 +1,13 @@
-import { setupControls } from "../videostudio/controls";
-import { setupTimeline } from "../videostudio/timeline";
-import "../videostudio/index.css";
+import { setupTimeline } from "./timeline";
+import "./index.css";
 import * as core from "@diffusionstudio/core";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import VideoControls from "./VideoControls";
 
 let rendered = false;
 export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
     const playerRef = useRef<HTMLDivElement>(null);
+    const [composition, setComposition] = useState<core.Composition>();
 
     useEffect(() => {
         if (playerRef.current && !rendered) {
@@ -17,8 +18,8 @@ export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
                 [20, 25], // 20-25 seconds
             ];
             getComposition(props.videoUrl, cuts).then((composition) => {
+                setComposition(composition);
                 setupTimeline(composition);
-                setupControls(composition);
             });
         }
     }, [props.videoUrl]);
@@ -34,22 +35,7 @@ export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
             <div id='timeline'>
                 <div></div>
             </div>
-            <div id='controls'>
-                <div id='playback'>
-                    <i data-lucide='skip-back'>skip-back</i>
-                    <i data-lucide='play'>play</i>
-                    <i data-lucide='pause' style={{ display: "none" }}>
-                        pause
-                    </i>
-                    <i data-lucide='skip-forward'>skip-forward</i>
-                </div>
-                <span id='time'>00:00 / 00:00</span>
-                <i data-lucide='sliders-vertical'></i>
-                <button id='export' type='button'>
-                    <div className='loader' style={{ display: "none" }}></div>
-                    Export
-                </button>
-            </div>
+            {composition && <VideoControls composition={composition}/>}
         </div>
     );
 }
