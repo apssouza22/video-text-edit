@@ -7,6 +7,8 @@ export default function VideoControls(props: { composition: core.Composition }) 
     const [currentTime, setCurrentTime] = useState("00:00 / 00:00");
 
     useEffect(() => {
+        const container = document.querySelector('[id="player-container"]') as HTMLDivElement;
+        const player = document.querySelector('[id="player"]') as HTMLDivElement;
         const composition = props.composition;
 
         // Setup event listeners
@@ -17,17 +19,34 @@ export default function VideoControls(props: { composition: core.Composition }) 
         composition.on("play", handlePlay);
         composition.on("pause", handlePause);
         composition.on("currentframe", handleTimeUpdate);
+        composition.mount(player);
+        setCurrentTime(composition.time());
+
+        // handle window resizes
+        const observer = new ResizeObserver(() => {
+            const scale = Math.min(container.clientWidth / composition.width, container.clientHeight / composition.height);
+
+            player.style.width = `${composition.width}px`;
+            player.style.height = `${composition.height}px`;
+            player.style.transform = `scale(${scale})`;
+            player.style.transformOrigin = "center";
+        });
+
+        observer.observe(document.body);
 
         // Cleanup event listeners
         return () => {
             composition.off("play");
             composition.off("pause");
             composition.off("currentframe");
+            composition.unmount();
+            observer.disconnect();
         };
     }, [props.composition]);
 
-    const handlePlay = useCallback(() => {
-        props.composition.play();
+    const handlePlay = useCallback(async () => {
+        console.log("play");
+        await props.composition.play();
     }, [props.composition]);
 
     const handlePause = useCallback(() => {
@@ -44,32 +63,6 @@ export default function VideoControls(props: { composition: core.Composition }) 
 
     const handleExport = useCallback(() => {
         render(props.composition);
-    }, [props.composition]);
-
-    useEffect(() => {
-        const container = document.querySelector('[id="player-container"]') as HTMLDivElement;
-        const player = document.querySelector('[id="player"]') as HTMLDivElement;
-        const composition = props.composition;
-
-        // add canvas to dom
-        composition.mount(player);
-
-        // handle window resizes
-        const observer = new ResizeObserver(() => {
-            const scale = Math.min(container.clientWidth / composition.width, container.clientHeight / composition.height);
-
-            player.style.width = `${composition.width}px`;
-            player.style.height = `${composition.height}px`;
-            player.style.transform = `scale(${scale})`;
-            player.style.transformOrigin = "center";
-        });
-
-        observer.observe(document.body);
-        setCurrentTime(composition.time());
-
-        return () => {
-            observer.disconnect();
-        };
     }, [props.composition]);
 
     return (

@@ -11,14 +11,13 @@ export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
     const context = useAppContext();
 
     useEffect(() => {
-        const regions = context.wordTimestamps.map((word) => {
+        let regions = context.wordTimestamps.map((word) => {
             return [word.timestamp[0], word.timestamp[1]] as [number, number];
         });
         regions.sort((a, b) => a[0] - b[0]);
 
         if (playerRef.current) {
             getComposition(props.videoUrl, regions).then((composition) => {
-                composition.unmount();
                 setComposition(composition);
                 setupTimeline(composition);
             });
@@ -43,26 +42,28 @@ export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
 
 async function removeSegmentsVideo(excludeSegments: Array<[number, number]>, duration: number): Promise<Array<[number, number]>> {
     const segments: Array<[number, number]> = [];
-    let newStart = 0;
-    console.log("excludeSegments", excludeSegments);
-    const queue = excludeSegments.map(([startPos, endPos], index) => {
-        if (index === 0) {
-            segments.push([0, startPos]);
-            newStart = endPos;
-            segments.push([newStart, duration]);
-            return;
-        }
-        if (index === excludeSegments.length - 1) {
-            segments.push([newStart, startPos]);
-            segments.push([endPos, duration]);
-            return;
-        }
+    const sortedSegments = [...excludeSegments].sort((a, b) => a[0] - b[0]);
 
-        segments.push([newStart, startPos]);
-        newStart = endPos;
-    });
-
-    await Promise.all(queue);
+    console.log("sortedSegments", sortedSegments);
+    // Handle first segment
+    if (sortedSegments.length > 0) {
+        segments.push([0, sortedSegments[0][0]]);
+    }
+    
+    // Handle middle segments
+    for (let i = 0; i < sortedSegments.length - 1; i++) {
+        segments.push([sortedSegments[i][1], sortedSegments[i + 1][0]]);
+    }
+    
+    // Handle last segment
+    if (sortedSegments.length > 0) {
+        segments.push([sortedSegments[sortedSegments.length - 1][1], duration]);
+    }
+    
+    // If no segments to exclude, return the full duration
+    if (sortedSegments.length === 0) {
+        segments.push([0, duration]);
+    }
     console.log("segments", segments);
     return segments;
 }
@@ -81,8 +82,8 @@ async function getComposition(videoUrl: string, segments: [number, number][]) {
         await composition.add(clip);
         return composition;
     }
-    cuts.sort((a, b) => a[0] - b[0]);
-
+    const layer = composition.createLayer()
+    layer.sequential();
     let currentTime = 0;
     for (const [start, end] of cuts) {
         const clip = new core.VideoClip(video, {
@@ -95,10 +96,10 @@ async function getComposition(videoUrl: string, segments: [number, number][]) {
         const endFrame = Math.floor(end! * 30);
         const duration = endFrame - startFrame;
 
-        await composition.add(clip.offset(-currentTime).subclip(startFrame, endFrame));
+        await layer.add(clip.offset(-currentTime).subclip(startFrame, endFrame));
         currentTime += duration;
     }
-
+    await composition.insertLayer(layer);
     composition.duration = currentTime;
     return composition;
 }
