@@ -1,6 +1,6 @@
 import * as core from "@diffusionstudio/core";
 import { render } from "./render";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function VideoControls(props: { composition: core.Composition }) {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -8,14 +8,14 @@ export default function VideoControls(props: { composition: core.Composition }) 
 
     useEffect(() => {
         const composition = props.composition;
-        
+
         // Setup event listeners
         const handlePlay = () => setIsPlaying(true);
         const handlePause = () => setIsPlaying(false);
         const handleTimeUpdate = () => setCurrentTime(composition.time());
 
         composition.on("play", handlePlay);
-        composition.on("pause" , handlePause);
+        composition.on("pause", handlePause);
         composition.on("currentframe", handleTimeUpdate);
 
         // Cleanup event listeners
@@ -75,13 +75,21 @@ export default function VideoControls(props: { composition: core.Composition }) 
     return (
         <div id='controls'>
             <div id='playback'>
-                <i data-lucide='skip-back' onClick={handleBack}>skip-back</i>
+                <i data-lucide='skip-back' onClick={handleBack}>
+                    skip-back
+                </i>
                 {!isPlaying ? (
-                    <i data-lucide='play' onClick={handlePlay}>play</i>
+                    <i data-lucide='play' onClick={handlePlay}>
+                        play
+                    </i>
                 ) : (
-                    <i data-lucide='pause' onClick={handlePause}>pause</i>
+                    <i data-lucide='pause' onClick={handlePause}>
+                        pause
+                    </i>
                 )}
-                <i data-lucide='skip-forward' onClick={handleForward}>skip-forward</i>
+                <i data-lucide='skip-forward' onClick={handleForward}>
+                    skip-forward
+                </i>
             </div>
             <span id='time'>{currentTime}</span>
             <i data-lucide='sliders-vertical'></i>

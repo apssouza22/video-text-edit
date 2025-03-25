@@ -6,7 +6,6 @@ import useEditVideoFile from "../hooks/useEditVideoFile";
 import { useAppContext } from "../hooks/useAppContext";
 import DiffusionStudioPlayer from "../videostudio/DiffusionStudioPlayer";
 
-
 export default function VideoPlayer(props: { videoUrl: string; mimeType: string; transcriber?: Transcriber }) {
     const videoPlayer = useRef<HTMLVideoElement>(null);
     const videoSource = useRef<HTMLSourceElement>(null);
@@ -26,7 +25,7 @@ export default function VideoPlayer(props: { videoUrl: string; mimeType: string;
     return (
         <>
             <div className='flex relative z-10 p-4 w-full'>
-                {props.videoUrl && (DiffusionStudioPlayer({ videoUrl: props.videoUrl }))}
+                {props.videoUrl && DiffusionStudioPlayer({ videoUrl: props.videoUrl })}
                 <video
                     id={"video-player"}
                     style={{ display: "none" }}
