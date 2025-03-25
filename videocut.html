@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Cutter</title>
+</head>
+<body>
+<video id="video" controls>
+  <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<video id="cutVideo" controls>
+  Your browser does not support the video tag.
+</video>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const video = document.getElementById('video');
+    const cutVideo = document.getElementById('cutVideo');
+
+    video.addEventListener('loadedmetadata', () => {
+      const startTime = 2; // start time in seconds
+      const endTime = 10; // end time in seconds
+
+      video.currentTime = startTime;
+
+      video.addEventListener('seeked', () => {
+        const mediaSource = new MediaSource();
+        cutVideo.src = URL.createObjectURL(mediaSource);
+
+        mediaSource.addEventListener('sourceopen', () => {
+          console.log('sourceopen');
+          const sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+
+          fetch(video.src)
+          .then(response => response.arrayBuffer())
+          .then(data => {
+            const videoBlob = new Blob([data], { type: 'video/mp4' });
+            const videoUrl = URL.createObjectURL(videoBlob);
+            console.log(videoUrl);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', videoUrl, true);
+            xhr.responseType = 'arraybuffer';
+
+            xhr.onload = () => {
+              const arrayBuffer = xhr.response;
+              const startByte = Math.floor((startTime / video.duration) * arrayBuffer.byteLength);
+              const endByte = Math.floor((endTime / video.duration) * arrayBuffer.byteLength);
+              const segment = arrayBuffer.slice(startByte, endByte);
+
+              sourceBuffer.appendBuffer(segment);
+              sourceBuffer.addEventListener('updateend', () => {
+                mediaSource.endOfStream();
+                console.log(mediaSource.duration);
+                console.log(mediaSource.endOfStream());
+                // cutVideo.play();
+              });
+            };
+
+            xhr.send();
+          });
+        });
+      }, { once: true });
+    });
+  });
+</script>
+</body>
+</html>

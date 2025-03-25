@@ -1,0 +1,17 @@
+import * as core from "@diffusionstudio/core";
+
+export function setupTimeline(composition: core.Composition) {
+    const timeline = document.querySelector('[id="timeline"]') as HTMLDivElement;
+    const cursor = document.querySelector('[id="timeline"] > div') as HTMLDivElement;
+    composition.on("currentframe", (evt) => {
+        const pos = evt.detail / composition.duration.frames;
+
+        cursor.style.left = `${timeline.clientWidth * pos}px`;
+    });
+
+    timeline.addEventListener("click", (evt: MouseEvent) => {
+        const pos = evt.offsetX / timeline.clientWidth;
+
+        composition.seek(composition.duration.frames * pos);
+    });
+}
