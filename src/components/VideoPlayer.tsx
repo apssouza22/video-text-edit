@@ -11,16 +11,37 @@ import * as core from "@diffusionstudio/core";
 
 let rendered = false;
 
-async function getComposition(videoUrl: string) {
+async function getComposition(videoUrl: string, cuts: [number, number][]) {
     const composition = new core.Composition();
     const video = await core.Source.from<core.VideoSource>(videoUrl);
     composition.duration = video.duration;
-    const clip = new core.VideoClip(video, {
-        position: "center",
-        height: "100%",
-    });
-    clip.subclip(0, video.duration?.frames ?? 0);
-    await composition.add(clip);
+
+    // Sort cuts by start time to ensure proper ordering
+    cuts.sort((a, b) => a[0] - b[0]);
+
+    let currentTime = 0;
+    // Create and add a clip for each cut
+    for (const [start, end] of cuts) {
+        const clip = new core.VideoClip(video, {
+            position: "center",
+            height: "100%"
+        });
+        
+        // Convert time to frames (assuming 30fps)
+        const startFrame = Math.floor(start * 30);
+        const endFrame = Math.floor(end * 30);
+        const duration = endFrame - startFrame;
+        
+      
+        await composition.add(clip.offset(-currentTime).subclip(startFrame, endFrame));
+        
+        // Update the current time for the next clip
+        currentTime += duration;
+    }
+
+    // Update the composition duration to match the total length of all clips
+    composition.duration = currentTime;
+
     return composition;
 }
 
@@ -40,7 +61,12 @@ export default function VideoPlayer(props: { videoUrl: string; mimeType: string;
         }
         if (videoPlayerDiv.current && !rendered) {
             rendered = true;
-            getComposition(props.videoUrl).then((composition) => {
+            const cuts: [number, number][] = [
+                [0, 5],    // First 5 seconds
+                [10, 15],  // 10-15 seconds
+                [20, 25]   // 20-25 seconds
+            ];
+            getComposition(props.videoUrl, cuts).then((composition) => {
                 setupTimeline(composition);
                 setupControls(composition);
             });
