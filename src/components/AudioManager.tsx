@@ -4,7 +4,7 @@ import { TranscribeButton } from "./TranscribeButton";
 import Constants from "../utils/Constants";
 import { Transcriber } from "../hooks/useTranscriber";
 import Progress from "./Progress";
-import VideoPlayer from "./VideoPlayer";
+import VideoContainer from "./VideoContainer";
 import SettingsModal from "./SettingsModal";
 
 export enum AudioSource {
@@ -43,7 +43,7 @@ export function AudioManager(props: { transcriber: Transcriber }) {
             {audioData && (
                 <>
                     {audioData.mimeType.startsWith("video") ? (
-                        <VideoPlayer
+                        <VideoContainer
                             transcriber={props.transcriber}
                             videoUrl={audioData.url}
                             mimeType={audioData.mimeType}

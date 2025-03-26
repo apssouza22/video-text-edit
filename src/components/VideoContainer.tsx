@@ -6,13 +6,11 @@ import useEditVideoFile from "../hooks/useEditVideoFile";
 import { useAppContext } from "../hooks/useAppContext";
 import DiffusionStudioPlayer from "../videostudio/DiffusionStudioPlayer";
 
-export default function VideoPlayer(props: { videoUrl: string; mimeType: string; transcriber?: Transcriber }) {
+export default function VideoContainer(props: { videoUrl: string; mimeType: string; transcriber?: Transcriber }) {
     const videoPlayer = useRef<HTMLVideoElement>(null);
     const videoSource = useRef<HTMLSourceElement>(null);
     const videoPlayerDiv = useRef<HTMLDivElement>(null);
-    const ffmpeg = useEditVideoFile(videoSource.current, videoPlayer.current);
     const [videoHtml, setVideoHtml] = useState<HTMLVideoElement>();
-    const context = useAppContext();
 
     useEffect(() => {
         if (videoPlayer.current && videoSource.current) {
@@ -37,38 +35,8 @@ export default function VideoPlayer(props: { videoUrl: string; mimeType: string;
                     <source ref={videoSource} type={props.mimeType}></source>
                 </video>
             </div>
-            <div className="className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'">{videoPlayerDiv && <VideoTimeline videoHtml={videoHtml} />}</div>
-            <div className="className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'">
-                <button
-                    className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center'
-                    onClick={async () => {
-                        const regions = context.wordTimestamps.map((word) => {
-                            return [word.timestamp[0], word.timestamp[1]];
-                        });
+            <div className="w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto">{videoPlayerDiv && <VideoTimeline videoHtml={videoHtml} />}</div>
 
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        regions.sort((a, b) => a[0] - b[0]);
-
-                        // const blobVideo = await ffmpeg.wrapper.current.removeSegmentsVideo(
-                        //     regions,
-                        // );
-
-                        const blobVideo = await ffmpeg.wrapper.current.removeSegmentsVideo([
-                            [1, 5],
-                            [10, 15],
-                            [20, 25],
-                            [31, 36],
-                        ]);
-                        // @ts-ignore
-                        videoSource.current.src = blobVideo;
-                        // @ts-ignore
-                        videoPlayer.current.load();
-                    }}
-                >
-                    Save video
-                </button>
-            </div>
             <Transcript
                 transcribedData={props.transcriber?.output}
                 // transcribedData={{

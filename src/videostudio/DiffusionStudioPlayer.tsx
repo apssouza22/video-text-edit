@@ -11,7 +11,7 @@ export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
     const context = useAppContext();
 
     useEffect(() => {
-        let regions = context.wordTimestamps.map((word) => {
+        const regions = context.wordTimestamps.map((word) => {
             return [word.timestamp[0], word.timestamp[1]] as [number, number];
         });
         regions.sort((a, b) => a[0] - b[0]);
@@ -49,17 +49,17 @@ async function removeSegmentsVideo(excludeSegments: Array<[number, number]>, dur
     if (sortedSegments.length > 0) {
         segments.push([0, sortedSegments[0][0]]);
     }
-    
+
     // Handle middle segments
     for (let i = 0; i < sortedSegments.length - 1; i++) {
         segments.push([sortedSegments[i][1], sortedSegments[i + 1][0]]);
     }
-    
+
     // Handle last segment
     if (sortedSegments.length > 0) {
         segments.push([sortedSegments[sortedSegments.length - 1][1], duration]);
     }
-    
+
     // If no segments to exclude, return the full duration
     if (sortedSegments.length === 0) {
         segments.push([0, duration]);
@@ -82,7 +82,7 @@ async function getComposition(videoUrl: string, segments: [number, number][]) {
         await composition.add(clip);
         return composition;
     }
-    const layer = composition.createLayer()
+    const layer = composition.createLayer();
     layer.sequential();
     let currentTime = 0;
     for (const [start, end] of cuts) {
