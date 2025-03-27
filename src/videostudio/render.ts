@@ -8,7 +8,6 @@ let fps = 30;
  * @param composition The composition to render
  */
 export async function render(composition: core.Composition) {
-    // query the required elements
     const container = document.querySelector('[id="progress"]') as HTMLDivElement;
     const text = document.querySelector('[id="progress"] > h1') as HTMLHeadingElement;
     const loader = document.querySelector(".loader") as HTMLDivElement;
@@ -17,7 +16,6 @@ export async function render(composition: core.Composition) {
     // handle framerate configuration
     fpsButton.addEventListener("click", () => {
         const value = parseFloat(prompt("Please enter the desired render frame rate", fps.toString()) ?? fps.toString());
-
         if (!Number.isNaN(value)) fps = value;
     });
 
@@ -25,7 +23,6 @@ export async function render(composition: core.Composition) {
 
     try {
         const encoder = new core.Encoder(composition, { debug: true, video: { fps } });
-
         // display the progress
         encoder.on("render", (event) => {
             const { progress, total } = event.detail;
