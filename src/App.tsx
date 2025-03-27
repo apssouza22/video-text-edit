@@ -1,4 +1,4 @@
-import { FileManager } from "./components/AudioManager";
+import { FileManager } from "./components/FileManager";
 import Transcript from "./components/Transcript";
 import { useTranscriber } from "./hooks/useTranscriber";
 import React, { useState } from "react";
