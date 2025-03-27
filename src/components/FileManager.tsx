@@ -11,7 +11,7 @@ export enum AudioSource {
     FILE = "FILE",
 }
 
-export function AudioManager(props: { transcriber: Transcriber }) {
+export function FileManager(props: { transcriber: Transcriber }) {
     const [audioData, setAudioData] = useState<
         | {
               buffer: AudioBuffer;
