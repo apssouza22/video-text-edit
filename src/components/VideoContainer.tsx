@@ -24,34 +24,35 @@ export default function VideoContainer(props: { videoUrl: string; mimeType: stri
 
     return (
         <>
-            <div className='flex relative z-10 p-4 w-full'>
-                {props.videoUrl && DiffusionStudioPlayer({ videoUrl: props.videoUrl })}
-                <video
-                    id={"video-player"}
-                    style={{ display: "none" }}
-                    height='360'
-                    ref={videoPlayer}
-                    controls
-                    className='rounded-lg bg-white shadow-xl shadow-black/5 ring-1 ring-slate-700/10'
-                >
-                    <source ref={videoSource} type={props.mimeType}></source>
-                </video>
+            <div className="flex flex-col">
+                <div className="flex flex-row gap-4">
+                    <div id="video-player-container" className='flex relative z-10 p-4 w-1/2'>
+                        {props.videoUrl && DiffusionStudioPlayer({ videoUrl: props.videoUrl })}
+                        <video
+                            id={"video-player"}
+                            style={{ display: "none" }}
+                            height='360'
+                            ref={videoPlayer}
+                            controls
+                            className='rounded-lg bg-white shadow-xl shadow-black/5 ring-1 ring-slate-700/10'
+                        >
+                            <source ref={videoSource} type={props.mimeType}></source>
+                        </video>
+                    </div>
+
+                    <div className="w-1/2">
+                    {props.transcriber?.output && (
+                            <Transcript transcribedData={props.transcriber?.output} />
+                        )}
+                    </div>
+                </div>
             </div>
 
-            {props.transcriber?.output && <Transcript transcribedData={props.transcriber?.output}
-            // transcribedData={{
-            //     isBusy: false,
-            //     text: "",
-            //     chunks: [
-            //         { text: "hello", timestamp: [0, 1] },
-            //         { text: "world", timestamp: [1, 2] },
-            //         { text: "!", timestamp: [2, 3] },
-            //     ],
-            // }}
-            />}
             {props.audioBuffer && <TranscribeModel transcriber={props.transcriber} audioBuffer={props.audioBuffer} />}
-            
-            <div className="w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto">{videoPlayerDiv && <VideoTimeline videoHtml={videoHtml} />}</div>
+
+            <div className="w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto">
+                {videoPlayerDiv && <VideoTimeline videoHtml={videoHtml} />}
+            </div>
         </>
     );
 }
