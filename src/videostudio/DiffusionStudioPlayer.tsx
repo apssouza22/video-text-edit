@@ -4,13 +4,27 @@ import * as core from "@diffusionstudio/core";
 import { useEffect, useRef, useState } from "react";
 import VideoControls from "./VideoControls";
 import { useAppContext } from "../hooks/useAppContext";
+import { WordTimestamp } from "../context/AppContext";
+
+function getTimestampsString(timestamps: WordTimestamp[]): string {
+    return timestamps.map((word) => `${word.timestamp[0]}-${word.timestamp[1]}`).join(",");
+}
 
 export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
     const playerRef = useRef<HTMLDivElement>(null);
     const [composition, setComposition] = useState<core.Composition>();
     const context = useAppContext();
+    const previousTimestampsStringRef = useRef<string>("_");
+    const previousCompositionRef = useRef<core.Composition>(new core.Composition());
 
     useEffect(() => {
+        const currentTimestampsString = getTimestampsString(context.wordTimestamps);
+
+        if (previousTimestampsStringRef.current === currentTimestampsString) {
+            return;
+        }
+        previousTimestampsStringRef.current = currentTimestampsString;
+
         const regions = context.wordTimestamps.map((word) => {
             return [word.timestamp[0], word.timestamp[1]] as [number, number];
         });
@@ -18,8 +32,15 @@ export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
 
         if (playerRef.current) {
             getComposition(props.videoUrl, regions).then((composition) => {
+                if (previousCompositionRef.current.playing) {
+                    previousCompositionRef.current.pause().then(() => {
+                        console.log("playhead", previousCompositionRef.current.duration.frames);
+                        composition.play(previousCompositionRef.current.duration.frames);
+                    });
+                }
                 setComposition(composition);
                 setupTimeline(composition);
+                previousCompositionRef.current = composition;
             });
         }
     }, [props.videoUrl, context]);
@@ -64,6 +85,14 @@ async function removeSegmentsVideo(excludeSegments: Array<[number, number]>, dur
     if (sortedSegments.length === 0) {
         segments.push([0, duration]);
     }
+
+    // Increment 0.1 to segment[1] where segment[0] equals segment[1]
+    segments.forEach((segment) => {
+        if (segment[0] === segment[1]) {
+            segment[1] += 0.1;
+        }
+    });
+
     console.log("segments", segments);
     return segments;
 }
@@ -72,7 +101,6 @@ async function getComposition(videoUrl: string, segments: [number, number][]) {
     const composition = new core.Composition();
     const video = await core.Source.from<core.VideoSource>(videoUrl);
     const cuts = await removeSegmentsVideo(segments, video.duration?.seconds ?? 0);
-    console.log("cuts", cuts);
     composition.duration = video.duration;
     if (!cuts.length) {
         const clip = new core.VideoClip(video, {
