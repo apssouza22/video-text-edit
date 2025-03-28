@@ -8,7 +8,7 @@ import DiffusionStudioPlayer from "../videostudio/DiffusionStudioPlayer";
 import { TranscribeButton } from "./TranscribeButton";
 import TranscribeModel from "./TranscribeModel";
 
-export default function VideoContainer(props: { videoUrl: string; mimeType: string; transcriber: Transcriber, audioBuffer?: AudioBuffer }) {
+export default function VideoContainer(props: { videoUrl: string; mimeType: string; transcriber: Transcriber; audioBuffer?: AudioBuffer }) {
     const videoPlayer = useRef<HTMLVideoElement>(null);
     const videoSource = useRef<HTMLSourceElement>(null);
     const videoPlayerDiv = useRef<HTMLDivElement>(null);
@@ -24,9 +24,9 @@ export default function VideoContainer(props: { videoUrl: string; mimeType: stri
 
     return (
         <>
-            <div className="flex flex-col">
-                <div className="flex flex-row gap-4">
-                    <div id="video-player-container" className='flex relative z-10 p-4 w-1/2'>
+            <div className='flex flex-col'>
+                <div className='flex flex-row gap-4'>
+                    <div id='video-player-container' className='flex relative z-10 p-4 w-1/2'>
                         {props.videoUrl && DiffusionStudioPlayer({ videoUrl: props.videoUrl })}
                         <video
                             id={"video-player"}
@@ -40,19 +40,13 @@ export default function VideoContainer(props: { videoUrl: string; mimeType: stri
                         </video>
                     </div>
 
-                    <div className="w-1/2">
-                    {props.transcriber?.output && (
-                            <Transcript transcribedData={props.transcriber?.output} />
-                        )}
-                    </div>
+                    <div className='w-1/2'>{props.transcriber?.output && <Transcript transcribedData={props.transcriber?.output} />}</div>
                 </div>
             </div>
 
             {props.audioBuffer && <TranscribeModel transcriber={props.transcriber} audioBuffer={props.audioBuffer} />}
 
-            <div className="w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto">
-                {videoPlayerDiv && <VideoTimeline videoHtml={videoHtml} />}
-            </div>
+            <div className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'>{videoPlayerDiv && <VideoTimeline videoHtml={videoHtml} />}</div>
         </>
     );
 }

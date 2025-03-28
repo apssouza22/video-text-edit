@@ -42,17 +42,9 @@ export function FileManager(props: { transcriber: Transcriber }) {
             {audioData && (
                 <>
                     {audioData.mimeType.startsWith("video") ? (
-                        <VideoContainer
-                            transcriber={props.transcriber}
-                            videoUrl={audioData.url}
-                            mimeType={audioData.mimeType}
-                            audioBuffer={audioData.buffer}
-                        />
+                        <VideoContainer transcriber={props.transcriber} videoUrl={audioData.url} mimeType={audioData.mimeType} audioBuffer={audioData.buffer} />
                     ) : (
-                        <AudioPlayer
-                            audioUrl={audioData.url}
-                            mimeType={audioData.mimeType}
-                        />
+                        <AudioPlayer audioUrl={audioData.url} mimeType={audioData.mimeType} />
                     )}
                 </>
             )}
@@ -60,16 +52,7 @@ export function FileManager(props: { transcriber: Transcriber }) {
     );
 }
 
-
-function FileTile(props: {
-    icon: JSX.Element;
-    text: string;
-    onFileUpdate: (
-        decoded: AudioBuffer,
-        blobUrl: string,
-        mimeType: string,
-    ) => void;
-}) {
+function FileTile(props: { icon: JSX.Element; text: string; onFileUpdate: (decoded: AudioBuffer, blobUrl: string, mimeType: string) => void }) {
     // const audioPlayer = useRef<HTMLAudioElement>(null);
 
     // Create hidden input element
@@ -105,44 +88,26 @@ function FileTile(props: {
 
     return (
         <>
-            <Tile
-                icon={props.icon}
-                text={props.text}
-                onClick={() => elem.click()}
-            />
+            <Tile icon={props.icon} text={props.text} onClick={() => elem.click()} />
         </>
     );
 }
 
-function Tile(props: {
-    icon: JSX.Element;
-    text?: string;
-    onClick?: () => void;
-}) {
+function Tile(props: { icon: JSX.Element; text?: string; onClick?: () => void }) {
     return (
         <button
             onClick={props.onClick}
             className='flex items-center justify-center rounded-lg p-2 bg-blue text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200'
         >
             <div className='w-7 h-7'>{props.icon}</div>
-            {props.text && (
-                <div className='ml-2 break-text text-center text-md w-30'>
-                    {props.text}
-                </div>
-            )}
+            {props.text && <div className='ml-2 break-text text-center text-md w-30'>{props.text}</div>}
         </button>
     );
 }
 
 function FolderIcon() {
     return (
-        <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth='1.5'
-            stroke='currentColor'
-        >
+        <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth='1.5' stroke='currentColor'>
             <path
                 strokeLinecap='round'
                 strokeLinejoin='round'

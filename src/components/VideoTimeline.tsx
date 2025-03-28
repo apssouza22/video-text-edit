@@ -14,11 +14,11 @@ const handleVideoLoad = (videoHtml: HTMLVideoElement) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         container: document.querySelector(".video-waver"),
-        waveColor: "rgb(200, 0, 200)",
+        waveColor: "rgb(128, 128, 128)",
         progressColor: "rgb(100, 0, 100)",
         media: videoHtml,
         height: 100,
-        width: 1000,
+        width: document.querySelector("#main-container")?.clientWidth,
         plugins: [regions],
     });
 
