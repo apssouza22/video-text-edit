@@ -17,16 +17,13 @@ class PipelineFactory {
                 progress_callback,
                 quantized: this.quantized,
                 // For medium models, we need to load the `no_attentions` revision to avoid running out of memory
-                revision: this.model.includes("/whisper-medium")
-                    ? "no_attentions"
-                    : "output_attentions",
+                revision: this.model.includes("/whisper-medium") ? "no_attentions" : "output_attentions",
             });
         }
 
         return this.instance;
     }
 }
-
 
 async function transcribe(audio, model, multilingual, quantized, subtask, language) {
     const isDistilWhisper = model.startsWith("distil-whisper/");
@@ -51,7 +48,6 @@ async function transcribe(audio, model, multilingual, quantized, subtask, langua
         self.postMessage(data);
     });
 
-
     let output = await transcriber(audio, {
         chunk_length_s: 30,
         stride_length_s: 5,
@@ -73,16 +69,15 @@ async function transcribe(audio, model, multilingual, quantized, subtask, langua
 
 self.addEventListener("message", async (event) => {
     const message = event.data;
+    console.log(event);
+    if (!message) {
+        return;
+    }
 
-    let transcript = await transcribe(
-        message.audio,
-        message.model,
-        message.multilingual,
-        message.quantized,
-        message.subtask,
-        message.language,
-    );
-    if (transcript === null) return;
+    let transcript = await transcribe(message.audio, message.model, message.multilingual, message.quantized, message.subtask, message.language);
+    if (transcript === null) {
+        return;
+    }
 
     // Send the result back to the main thread
     self.postMessage({
