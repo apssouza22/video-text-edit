@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import WaveSurfer from "wavesurfer.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -9,8 +9,12 @@ interface VideoTimelineProps {
     videoHtml?: HTMLVideoElement | undefined;
 }
 
-const handleVideoLoad = (videoHtml: HTMLVideoElement) => {
-    const ws = WaveSurfer.create({
+const handleVideoLoad = (videoHtml: HTMLVideoElement, videoWave: WaveSurfer| null) => {
+    if (videoWave) {
+        videoWave.destroy();
+    }
+
+    videoWave = WaveSurfer.create({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         container: document.querySelector(".video-waver"),
@@ -21,8 +25,7 @@ const handleVideoLoad = (videoHtml: HTMLVideoElement) => {
         width: document.querySelector("#main-container")?.clientWidth,
         plugins: [regions],
     });
-
-    ws.on("decode", () => {
+    videoWave.on("decode", () => {
         regions.addRegion({
             start: 0,
             end: 1,
@@ -40,13 +43,14 @@ regions.enableDragSelection({
 });
 
 const VideoWave = ({ videoHtml }: VideoTimelineProps) => {
+    const videoWave = useRef<WaveSurfer>(null);
     const context = useAppContext();
 
     useEffect(() => {
         if (!videoHtml) return;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         videoHtml.addEventListener("loadeddata", () => {
-            handleVideoLoad(videoHtml);
+            handleVideoLoad(videoHtml, videoWave.current);
         });
     }, [videoHtml]);
 
