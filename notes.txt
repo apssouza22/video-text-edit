@@ -1,1 +1,1 @@
-https://github.com/openai/openai-agents-python/tree/main/examples/agent_patterns
+Replace /assets/ -> /video-edit/dist/assets/

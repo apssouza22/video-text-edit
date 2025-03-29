@@ -25,8 +25,8 @@ export default function VideoContainer(props: { videoUrl: string; mimeType: stri
     return (
         <>
             <div className='flex flex-col'>
-                <div className='flex flex-row gap-4'>
-                    <div id='video-player-container' className='flex relative z-10 p-4 w-1/2'>
+                <div className='flex flex-col md:flex-row gap-4'>
+                    <div id='video-player-container' className='flex relative z-10 p-4 w-full md:w-1/2'>
                         {props.videoUrl && DiffusionStudioPlayer({ videoUrl: props.videoUrl })}
                         <video
                             id={"video-player"}
@@ -40,7 +40,7 @@ export default function VideoContainer(props: { videoUrl: string; mimeType: stri
                         </video>
                     </div>
 
-                    <div className='w-1/2'>{props.transcriber?.output && <Transcript transcribedData={props.transcriber?.output} />}</div>
+                    <div className='w-full md:w-1/2'>{props.transcriber?.output && <Transcript transcribedData={props.transcriber?.output} />}</div>
                 </div>
             </div>
 

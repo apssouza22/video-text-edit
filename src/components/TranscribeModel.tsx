@@ -19,7 +19,7 @@ export default function TranscribeModel(props: {transcriber: Transcriber, audioB
                 />
 
                 <SettingsTile
-                    className='absolute right-4'
+                    className='right-4'
                     transcriber={props.transcriber}
                     icon={<SettingsIcon />}
                 />
