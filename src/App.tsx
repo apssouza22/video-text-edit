@@ -2,7 +2,7 @@ import { FileManager } from "./components/FileManager";
 import Transcript from "./components/Transcript";
 import { useTranscriber } from "./hooks/useTranscriber";
 import React, { useState } from "react";
-import VideoTimeline from "./components/VideoTimeline";
+import VideoWave from "./components/VideoWave";
 
 function App() {
     const transcriber = useTranscriber();

@@ -6,23 +6,21 @@ import VideoControls from "./VideoControls";
 import { useAppContext } from "../hooks/useAppContext";
 import { WordTimestamp } from "../context/AppContext";
 
-function getTimestampsString(timestamps: WordTimestamp[]): string {
-    return timestamps.map((word) => `${word.timestamp[0]}-${word.timestamp[1]}`).join(",");
-}
-
 export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
     const playerRef = useRef<HTMLDivElement>(null);
     const [composition, setComposition] = useState<core.Composition>();
     const context = useAppContext();
     const previousTimestampsStringRef = useRef<string>("_");
     const previousCompositionRef = useRef<core.Composition>(new core.Composition());
+    const previousVideoRef = useRef<string>("");
 
     useEffect(() => {
         const currentTimestampsString = getTimestampsString(context.wordTimestamps);
 
-        if (previousTimestampsStringRef.current === currentTimestampsString) {
+        if (previousTimestampsStringRef.current === currentTimestampsString && previousVideoRef.current === props.videoUrl) {
             return;
         }
+        previousVideoRef.current = props.videoUrl;
         previousTimestampsStringRef.current = currentTimestampsString;
 
         const regions = context.wordTimestamps.map((word) => {
@@ -35,7 +33,9 @@ export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
                 if (previousCompositionRef.current.playing) {
                     previousCompositionRef.current.pause().then(() => {
                         console.log("playhead", previousCompositionRef.current.duration.frames);
-                        composition.play(previousCompositionRef.current.duration.frames);
+                        composition.seek(previousCompositionRef.current.duration.frames).then(() => {
+                            composition.play();
+                        });
                     });
                 }
                 setComposition(composition);
@@ -48,7 +48,7 @@ export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
     return (
         <div id={"app"}>
             <div id='player-container' className={"flex relative z-10 p-4 w-full"}>
-                <div id='player' ref={playerRef} style={{ height: "0px", width: 0 }} className={"rounded-lg bg-white shadow-xl shadow-black/5 ring-1 ring-slate-700/10"}></div>
+                <div id='player' ref={playerRef} className={"rounded-lg bg-white shadow-xl shadow-black/5 ring-1 ring-slate-700/10"}></div>
                 <div id='progress' style={{ display: "none" }}>
                     <h1>0%</h1>
                 </div>
@@ -59,6 +59,10 @@ export default function DiffusionStudioPlayer(props: { videoUrl: string }) {
             {composition && <VideoControls composition={composition} />}
         </div>
     );
+}
+
+function getTimestampsString(timestamps: WordTimestamp[]): string {
+    return timestamps.map((word) => `${word.timestamp[0]}-${word.timestamp[1]}`).join(",");
 }
 
 async function removeSegmentsVideo(excludeSegments: Array<[number, number]>, duration: number): Promise<Array<[number, number]>> {

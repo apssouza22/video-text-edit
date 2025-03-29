@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import VideoTimeline from "./VideoTimeline";
+import VideoWave from "./VideoWave";
 import { Transcriber } from "../hooks/useTranscriber";
 import Transcript from "./Transcript";
 import useEditVideoFile from "../hooks/useEditVideoFile";
@@ -46,7 +46,7 @@ export default function VideoContainer(props: { videoUrl: string; mimeType: stri
 
             {props.audioBuffer && <TranscribeModel transcriber={props.transcriber} audioBuffer={props.audioBuffer} />}
 
-            <div className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'>{videoPlayerDiv && <VideoTimeline videoHtml={videoHtml} />}</div>
+            <div className='w-full flex flex-col my-2 p-4 max-h-[20rem] overflow-y-auto'>{videoPlayerDiv && <VideoWave videoHtml={videoHtml} />}</div>
         </>
     );
 }

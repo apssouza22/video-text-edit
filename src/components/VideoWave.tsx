@@ -39,7 +39,7 @@ regions.enableDragSelection({
     color: "rgba(255, 0, 0, 0.1)",
 });
 
-const VideoTimeline = ({ videoHtml }: VideoTimelineProps) => {
+const VideoWave = ({ videoHtml }: VideoTimelineProps) => {
     const context = useAppContext();
 
     useEffect(() => {
@@ -68,4 +68,4 @@ const VideoTimeline = ({ videoHtml }: VideoTimelineProps) => {
     return <div className='video-waver' />;
 };
 
-export default VideoTimeline;
+export default VideoWave;
