@@ -11,6 +11,21 @@ interface Props {
     transcribedData: TranscriberData | undefined;
 }
 
+function handleWordDelete(dispatch: (value: Action) => void, chunk: { text: string; timestamp: [number, number | null] } | undefined) {
+    const querySelector = document.querySelector(".text-chunks .cursor-here") as HTMLElement;
+    if (!querySelector) {
+        return;
+    }
+    const previousSibling = querySelector.previousElementSibling as HTMLElement;
+    if (previousSibling) {
+        previousSibling.click();
+    }
+
+    dispatch({ type: "ADD_WORD_TIMESTEP", payload: chunk });
+
+    querySelector.parentElement?.remove();
+}
+
 export default function Transcript({ transcribedData }: Props) {
     const divRef = useRef<HTMLDivElement>(null);
     const { dispatch } = useAppContext();
@@ -24,20 +39,7 @@ export default function Transcript({ transcribedData }: Props) {
             if (event.key !== "Backspace") {
                 return;
             }
-            let querySelector = document.querySelector(".text-chunks .cursor-here");
-            if (!querySelector) {
-                return;
-            }
-            let previousSibling = querySelector.previousElementSibling;
-            if (previousSibling) {
-                // @ts-ignore
-                previousSibling.click();
-            }
-
-            dispatch({ type: "ADD_WORD_TIMESTEP", payload: chunk });
-
-            // @ts-ignore
-            querySelector.remove();
+            handleWordDelete(dispatch, chunk);
         },
         [chunk],
     );
@@ -68,24 +70,40 @@ export default function Transcript({ transcribedData }: Props) {
     );
 }
 
+function selectWord(element: HTMLElement, dispatch: (value: Action) => void, chunk: { text: string; timestamp: [number, number | null] }, setChunk: (value: any) => void) {
+    document.querySelectorAll(".cursor-here").forEach((el) => {
+        el.classList.remove("cursor-here");
+    });
+    element.classList.add("cursor-here");
+    dispatch({ type: "ADD_SELECTED_WORD", payload: chunk });
+    setChunk(chunk);
+}
+
 const TextWithTimestamps = (chunks: TranscriptionData, setChunk: SetUseState, dispatch: (value: Action) => void) => {
     return (
         <div className={"text-chunks"}>
             {chunks.map((chunk, index) => (
-                <span
-                    key={index}
-                    onClick={(e) => {
-                        let element = e.target as HTMLElement;
-                        document.querySelectorAll(".cursor-here").forEach((el) => {
-                            el.classList.remove("cursor-here");
-                        });
-                        element.classList.add("cursor-here");
-                        dispatch({ type: "ADD_SELECTED_WORD", payload: chunk });
-                        setChunk(chunk);
-                    }}
-                    style={{ cursor: "pointer", marginRight: "5px" }}
-                >
-                    {chunk.text}
+                <span key={index} className='inline-flex items-center' style={{ cursor: "pointer", marginRight: "5px" }}>
+                    <span
+                        onClick={(e) => {
+                            const element = e.target as HTMLElement;
+                            selectWord(element, dispatch, chunk, setChunk);
+                        }}
+                    >
+                        {chunk.text}
+                    </span>
+                    <span
+                        onClick={(e) => {
+                            const element = e.target as HTMLElement;
+                            const selector = element.previousElementSibling as HTMLElement;
+                            selectWord(selector, dispatch, chunk, setChunk);
+                            handleWordDelete(dispatch, chunk);
+                        }}
+                        className='ml-1 text-red-500 hover:text-red-700 cursor-pointer md:hidden'
+                        style={{ fontSize: "0.8em" }}
+                    >
+                        ×
+                    </span>
                 </span>
             ))}
         </div>
