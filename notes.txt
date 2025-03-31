@@ -1,1 +1,1 @@
-Replace /assets/ -> /video-edit/dist/assets/
+Replace /assets/ -> /video-text-edit/dist/assets/
