@@ -12,7 +12,7 @@ function App() {
             <div id="main-container" className='w-full px-4 py-8'>
                 <div className='flex flex-col items-center space-y-6'>
                     <h1 className='text-5xl font-extrabold tracking-tight text-slate-900 sm:text-7xl text-center'>
-                        Video text edit
+                        Video text editing
                     </h1>
                     <h2 className='text-center text-1xl font-semibold tracking-tight text-slate-900 sm:text-2xl'>
                         ML-powered video editing text based directly in your browser
