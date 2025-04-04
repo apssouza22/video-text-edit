@@ -1,1 +1,5 @@
 Replace /assets/ -> /video-text-edit/dist/assets/
+
+https://huggingface.co/docs/transformers.js/v3.0.0/en/pipelines
+https://docs.diffusion.studio/docs
+https://huggingface.co/spaces/Xenova/whisper-web

@@ -15,7 +15,7 @@ function App() {
                         Video text editing
                     </h1>
                     <h2 className='text-center text-1xl font-semibold tracking-tight text-slate-900 sm:text-2xl'>
-                        ML-powered video editing text based directly in your browser
+                        AI-powered video editing text based directly in your browser
                     </h2>
                     <FileManager transcriber={transcriber} />
                 </div>
