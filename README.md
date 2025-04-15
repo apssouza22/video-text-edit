@@ -1,5 +1,11 @@
-# Text based video edit
+# Text based video editor
+AI-powered video editing text based directly in your browser. 
 
+This project is a web-based video editor that allows users to edit videos though the video transcription.
+It leverages the power of AI to provide a seamless editing experience. 
+[Try it out](https://apssouza22.github.io/video-text-edit/dist/)
+
+<img src="videoedit.png" alt="Video Edit" width="600"/>
 
 ## Running locally
 
@@ -7,7 +13,7 @@
 
     ```bash
     git clone https://github.com/apssouza22/video-edit.git
-    cd video-edit
+    cd video-text-edit
     npm install
     ```
 
